@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.util.Pair;
 
 import com.mapbox.mapboxsdk.annotations.Icon;
 import com.mapbox.mapboxsdk.annotations.IconFactory;
@@ -17,13 +18,13 @@ import com.mapbox.mapboxsdk.maps.MapboxMap;
 import java.util.HashMap;
 import java.util.Map;
 
+import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 
-public class MarkersOnMap {
+public class MarkersOnMap{
     private Context c;
-    private Map<Long, MapIcon> icons;
-    private DatabaseHandler myDB;
+    private Map<Long, Pair<Boolean, Integer>> markers;
 
     //constructor
     public MarkersOnMap(Context c)
@@ -32,9 +33,8 @@ public class MarkersOnMap {
         this.c = c;
 
         //a map of the icons on the map(icon id(long) paired with the icon (MapIcon))
-        icons = new HashMap<Long, MapIcon>();
+        markers = new HashMap<Long, Pair<Boolean, Integer>>();
 
-        myDB = new DatabaseHandler(c);
         //myDB.addAllMarkers();
         //amphitheaters
         //myDB.insertData("1501 – אמפי-תיאטרון מרכזי", "amphitheater", 32.07265, 34.848452, "האמפי-תיאטרון המרכזי בבר אילן, ממוקם בחלק הצפוני של הקמפוס. משמש לטקסים, הופעות אירועים שונים ועוד");
@@ -43,38 +43,41 @@ public class MarkersOnMap {
       //  Cursor cur = myDB.getAllMarkers();
     }
 
-
     //displaying the icons from the DB on the given map, and adding them to the icons dictionary
-    public boolean addMarkersToMap(MapboxMap map)
+    public void initializeMarkersToMap(MapboxMap map)
     {
-        Cursor cursor = this.myDB.getAllMarkers();
+        /*int drawableID = initilizedContext.getResources().getIdentifier("amphitheater", "drawable", initilizedContext.getPackageName());
+        Bitmap mBitmap = getBitmapFromVectorDrawable(initilizedContext, drawableID);
+        Icon amphitheaterIc = IconFactory.getInstance(initilizedContext).fromBitmap(mBitmap);
 
-        if(cursor == null){
-            cursor = this.myDB.getAllMarkers();
-        }
+        Icon currentIc = null;*/
 
         Context initilizedContext = c;
-        int drawableID = initilizedContext.getResources().getIdentifier("amphitheater", "drawable", initilizedContext.getPackageName());
-        Bitmap mBitmap = getBitmapFromVectorDrawable(initilizedContext, drawableID);
-        Icon ic = IconFactory.getInstance(initilizedContext).fromBitmap(mBitmap);
 
         //INIT ICONS, change addMarker, put params
+        int i;
         Marker m;
-        if(cursor != null) {
-            do{
-                m = map.addMarker(new MarkerOptions().position(new LatLng(cursor.getDouble(2),cursor.getDouble(3))).icon(ic));
-                icons.put(m.getId(), new MapIcon(m.getId(), new LatLng(cursor.getDouble(2),cursor.getDouble(3)), cursor.getString(1), cursor.getString(0), cursor.getString(4)));
+        Icon ic;
+        for (i = 0; i < InformationHandler.getSize(); i++) {
+            ic = getIconByType(InformationHandler.getInfoByIndex(i).getType());
+            /*int drawableID = initilizedContext.getResources().getIdentifier(InformationHandler.getInfoByIndex(i).getType(), "drawable", initilizedContext.getPackageName());
+            Bitmap mBitmap = getBitmapFromVectorDrawable(initilizedContext, drawableID);
+            Icon ic = IconFactory.getInstance(initilizedContext).fromBitmap(mBitmap);*/
 
-            }while (cursor.moveToNext());
-
-            return true;
-
+            m = map.addMarker(new MarkerOptions().position(InformationHandler.getInfoByIndex(i).getPosition()).icon(ic));
+            markers.put(m.getId(), new Pair<Boolean, Integer>(true, i));
         }
+        /*DO FOR WITH INDEXES
+        for (Information information : InformationHandler.getInfo()) {
+            int drawableID = initilizedContext.getResources().getIdentifier(information.getType(), "drawable", initilizedContext.getPackageName());
+            Bitmap mBitmap = getBitmapFromVectorDrawable(initilizedContext, drawableID);
+            Icon ic = IconFactory.getInstance(initilizedContext).fromBitmap(mBitmap);
 
-        else
-        {
-            return false;
-        }
+            m = map.addMarker(new MarkerOptions().position(information.getPosition()).icon(ic));
+            icons.put( ,m.getId());
+
+        }*/
+
         //initializing the icons dictionary
 
        /* Context initilizedContext = c;
@@ -97,6 +100,91 @@ public class MarkersOnMap {
         icons.put(m1.getId(), new MapIcon(m1.getId(), new LatLng(32.067,34.843), "ic_airport", "airplain2", "second airplain"));*/
     }
 
+    public Icon getIconByType(String type){
+        int drawableID = c.getResources().getIdentifier(type, "drawable", c.getPackageName());
+        Bitmap mBitmap = getBitmapFromVectorDrawable(c, drawableID);
+        return IconFactory.getInstance(c).fromBitmap(mBitmap);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public void MarkersSelectionToMap(MapboxMap map, String type)
+    {
+        Marker m;
+        int currentInfoIndex = -1;
+        Information currentInfo = null;
+        Icon ic = null;
+        if(type.equals("All")) {
+            for(Map.Entry<Long, Pair<Boolean, Integer>> entry : markers.entrySet()) {
+                if(entry.getValue().first == false) {
+                    currentInfoIndex = entry.getValue().second;
+                    currentInfo = InformationHandler.getInfoByIndex(currentInfoIndex);
+                    ic = getIconByType(currentInfo.getType());
+
+                    /*int drawableID = initilizedContext.getResources().getIdentifier(currentInfo.getType(), "drawable", initilizedContext.getPackageName());
+                    Bitmap mBitmap = getBitmapFromVectorDrawable(initilizedContext, drawableID);
+                    Icon ic = IconFactory.getInstance(initilizedContext).fromBitmap(mBitmap);*/
+
+                    m = map.addMarker(new MarkerOptions().position(currentInfo.getPosition()).icon(ic));
+                    markers.remove(entry.getKey());
+                    markers.put(m.getId(), new Pair<Boolean, Integer>(true, currentInfoIndex));
+                }
+            }
+        }
+
+        else {
+            for(Map.Entry<Long, Pair<Boolean, Integer>> entry : markers.entrySet()) {
+                //if a marker from the wnted type isn't exist
+                if(InformationHandler.getInfoByIndex(entry.getValue().second).getType().equals(type) &&
+                        entry.getValue().first == false) {
+                    currentInfoIndex = entry.getValue().second;
+                    currentInfo = InformationHandler.getInfoByIndex(currentInfoIndex);
+                    ic = getIconByType(currentInfo.getType());
+
+                    /*int drawableID = initilizedContext.getResources().getIdentifier(currentInfo.getType(), "drawable", initilizedContext.getPackageName());
+                    Bitmap mBitmap = getBitmapFromVectorDrawable(initilizedContext, drawableID);
+                    Icon ic = IconFactory.getInstance(initilizedContext).fromBitmap(mBitmap);*/
+
+                    m = map.addMarker(new MarkerOptions().position(currentInfo.getPosition()).icon(ic));
+                    markers.remove(entry.getKey());
+                    markers.put(m.getId(), new Pair<Boolean, Integer>(true, currentInfoIndex));
+                }
+
+                else if((!InformationHandler.getInfoByIndex(entry.getValue().second).getType().equals(type)) &&
+                        entry.getValue().first == true) {
+                    m = getMarkerById(entry.getKey(), map);
+                    if(m != null) {
+                        map.removeMarker(m);
+                    }
+
+                    markers.replace(entry.getKey(), new Pair<Boolean, Integer>(false, entry.getValue().second));
+                    //first in second is false + loop by indexes
+
+
+                    /*currentInfoIndex = entry.getValue().second;
+                    currentInfo = InformationHandler.getInfoByIndex(currentInfoIndex);
+                    ic = getIconByType(currentInfo.getType());*/
+
+                    /*int drawableID = initilizedContext.getResources().getIdentifier(currentInfo.getType(), "drawable", initilizedContext.getPackageName());
+                    Bitmap mBitmap = getBitmapFromVectorDrawable(initilizedContext, drawableID);
+                    Icon ic = IconFactory.getInstance(initilizedContext).fromBitmap(mBitmap);*/
+
+                    /*m = map.addMarker(new MarkerOptions().position(currentInfo.getPosition()).icon(ic));
+                    markers.remove(entry.getKey());
+                    markers.put(m.getId(), new Pair<Boolean, Integer>(true, currentInfoIndex));*/
+                }
+            }
+        }
+    }
+
+    public Marker getMarkerById(Long id, MapboxMap map) {
+        for(Marker m : map.getMarkers()) {
+            if(m.getId() == id) {
+                return m;
+            }
+        }
+        return null;
+    }
+
     //converting vector to bitmap(for the icons)
     public static Bitmap getBitmapFromVectorDrawable(Context context, int drawableId) {
         Drawable drawable = ContextCompat.getDrawable(context, drawableId);
@@ -113,8 +201,15 @@ public class MarkersOnMap {
         return bitmap;
     }
 
-    //returnes the icons that are on the map
-    public Map<Long, MapIcon> getIcons() {
+    /*/returnes the icons that are on the map
+    public Map<Long, Pair<Boolean, Integer>> getIcons() {
         return icons;
+    }*/
+
+    /*public Pair<Boolean, Integer> getIconById(Long id) {
+        return icons.get(id);
+    }*/
+    public int getMarkerIndexById(Long id) {
+        return markers.get(id).second;
     }
 }

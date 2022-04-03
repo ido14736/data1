@@ -10,9 +10,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Data1">
         <activity
-            android:name=".ListActivity"
-            android:exported="false" />
-        <activity
             android:name=".MapActivity"
             android:exported="true">
             <intent-filter>

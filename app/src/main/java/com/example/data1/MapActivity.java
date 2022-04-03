@@ -1,19 +1,26 @@
 package com.example.data1;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.annotations.Icon;
+import com.mapbox.mapboxsdk.annotations.IconFactory;
 import com.mapbox.mapboxsdk.annotations.Marker;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
@@ -41,13 +48,35 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         mapView.getMapAsync(this);
 
         currentSelectedIcon = null;
+
+        boolean addedSuccesfully = InformationHandler.initializeInformation(getBaseContext());
+        if(!addedSuccesfully){
+            //failed to add
+            Toast.makeText(getBaseContext(), "Error While Reading The Data From The Database.",
+                    Toast.LENGTH_LONG).show();
+        }
+
+        Spinner spinner = findViewById(R.id.typeSP);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_item, InformationHandler.getTypes());
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if(item.getItemId() == R.id.toListItem)
         {
-            startActivity(new Intent(getApplicationContext(), ListActivity.class));
+            //PASS THE MAPICON LISTf
+
+            Intent intent = new Intent(getApplicationContext(), ListActivity.class);
+            //intent.putExtra("markersOnMap", (Parcelable) markersOnMap);
+           /* Bundle b = new Bundle();
+            b.putSerializable("markersOnMap", markersOnMap);
+            intent.putExtras(b);*/
+            //intent.putExtra("markersOnMap", markersOnMap);
+            //Map<Long, MapIcon> icons = markersOnMap.getIcons();
+            startActivity(intent);
             //overridePendingTransition(R.anim.right_slide_in, R.anim.left_slide_in);
         }
         return true;
@@ -61,6 +90,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
     //when the map is ready
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void onMapReady(MapboxMap mapboxMap) {
         map = mapboxMap;
@@ -82,22 +112,16 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
         }
 
-
         //adding the markers to the map
         markersOnMap = new MarkersOnMap(getBaseContext());
-        boolean addedSuccesfully = markersOnMap.addMarkersToMap(map);
-        if(!addedSuccesfully){
-            //failed to add
-            Toast.makeText(getBaseContext(), "Error While Loading The Icons To The Map.",
-                    Toast.LENGTH_LONG).show();
-        }
+        markersOnMap.initializeMarkersToMap(map);
 
         //when a marker is clicked
         map.setOnMarkerClickListener(new MapboxMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(@NonNull Marker marker) {
-                MapIcon ic = markersOnMap.getIcons().get(marker.getId());
-                if(ic != null)
+                Information markerInfo = InformationHandler.getInfoByIndex(markersOnMap.getMarkerIndexById(marker.getId()));
+                if(markerInfo != null)
                 {
                     /*Location iconLocation = new Location("");
                     iconLocation.setLatitude(ic.getPosition().getLatitude());
@@ -108,8 +132,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                         currentSelectedIcon.hideInfoWindow();
                         if(currentSelectedIcon.getId() != marker.getId())
                         {
-                            marker.setTitle(ic.getName());
-                            marker.setSnippet(ic.getDescription());
+                            marker.setTitle(markerInfo.getName());
+                            marker.setSnippet(markerInfo.getDescription());
                             marker.showInfoWindow(map, mapView);
                             currentSelectedIcon = marker;
                         }
@@ -122,8 +146,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
                     else
                     {
-                        marker.setTitle(ic.getName());
-                        marker.setSnippet(ic.getDescription());
+                        marker.setTitle(markerInfo.getName());
+                        marker.setSnippet(markerInfo.getDescription());
                         marker.showInfoWindow(map, mapView);
                         currentSelectedIcon = marker;
                     }
@@ -153,6 +177,20 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
         });
 
+        Spinner spinner = findViewById(R.id.typeSP);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                markersOnMap.MarkersSelectionToMap(map, spinner.getSelectedItem().toString());
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+
+        //markersOnMap.MarkersSelectionToMap(map, "dorms");
+        //markersOnMap.MarkersSelectionToMap(map, "sports");
+        //markersOnMap.MarkersSelectionToMap(map, "library");
     }
 
 
