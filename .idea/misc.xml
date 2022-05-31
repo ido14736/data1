@@ -5,6 +5,7 @@
       <map>
         <entry key="..\:/Users/magshimim/data12/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.17314814814814813" />
         <entry key="..\:/Users/magshimim/data12/app/src/main/res/drawable/amphitheater.xml" value="0.1125" />
+        <entry key="..\:/Users/magshimim/data12/app/src/main/res/drawable/building.xml" value="0.13333333333333333" />
         <entry key="..\:/Users/magshimim/data12/app/src/main/res/drawable/coffee.xml" value="0.1125" />
         <entry key="..\:/Users/magshimim/data12/app/src/main/res/drawable/dorms.xml" value="0.16574074074074074" />
         <entry key="..\:/Users/magshimim/data12/app/src/main/res/drawable/ic_launcher_background.xml" value="0.17314814814814813" />
@@ -12,7 +13,12 @@
         <entry key="..\:/Users/magshimim/data12/app/src/main/res/drawable/map.xml" value="0.16666666666666666" />
         <entry key="..\:/Users/magshimim/data12/app/src/main/res/layout/activity_list.xml" value="0.1" />
         <entry key="..\:/Users/magshimim/data12/app/src/main/res/layout/activity_main.xml" value="0.10733695652173914" />
-        <entry key="..\:/Users/magshimim/data12/app/src/main/res/layout/activity_map.xml" value="0.10733695652173914" />
+        <entry key="..\:/Users/magshimim/data12/app/src/main/res/layout/activity_map.xml" value="0.1" />
+        <entry key="..\:/Users/magshimim/data12/app/src/main/res/layout/child_row.xml" value="0.1" />
+        <entry key="..\:/Users/magshimim/data12/app/src/main/res/layout/example2.xml" value="0.1" />
+        <entry key="..\:/Users/magshimim/data12/app/src/main/res/layout/list_group.xml" value="0.16302083333333334" />
+        <entry key="..\:/Users/magshimim/data12/app/src/main/res/layout/list_item.xml" value="0.1" />
+        <entry key="..\:/Users/magshimim/data12/app/src/main/res/layout/parent_row.xml" value="0.1" />
         <entry key="..\:/Users/magshimim/data12/app/src/main/res/menu/map_menu.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/magshimim/data12/app/src/main/res/menu/menu.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/magshimim/data12/app/src/main/res/menu/navigationmenu.xml" value="0.20416666666666666" />

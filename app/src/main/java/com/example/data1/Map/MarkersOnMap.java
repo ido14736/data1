@@ -1,21 +1,23 @@
-package com.example.data1;
+package com.example.data1.Map;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.Pair;
 
+import com.example.data1.Data.Information;
+import com.example.data1.Data.InformationHandler;
 import com.mapbox.mapboxsdk.annotations.Icon;
 import com.mapbox.mapboxsdk.annotations.IconFactory;
 import com.mapbox.mapboxsdk.annotations.Marker;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
-import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import androidx.annotation.RequiresApi;
@@ -113,6 +115,9 @@ public class MarkersOnMap{
         int currentInfoIndex = -1;
         Information currentInfo = null;
         Icon ic = null;
+        //because you can't add/remove from map during the looping
+        List<Long> removeFromList = new ArrayList();
+        List<Pair<Long, Integer>> addToList = new ArrayList();
         if(type.equals("All")) {
             for(Map.Entry<Long, Pair<Boolean, Integer>> entry : markers.entrySet()) {
                 if(entry.getValue().first == false) {
@@ -125,8 +130,9 @@ public class MarkersOnMap{
                     Icon ic = IconFactory.getInstance(initilizedContext).fromBitmap(mBitmap);*/
 
                     m = map.addMarker(new MarkerOptions().position(currentInfo.getPosition()).icon(ic));
-                    markers.remove(entry.getKey());
-                    markers.put(m.getId(), new Pair<Boolean, Integer>(true, currentInfoIndex));
+                  //  markers.remove(entry.getKey());
+                    addToList.add(new Pair<>(m.getId(), currentInfoIndex));
+                   // markers.put(m.getId(), new Pair<Boolean, Integer>(true, currentInfoIndex));
                 }
             }
         }
@@ -145,8 +151,10 @@ public class MarkersOnMap{
                     Icon ic = IconFactory.getInstance(initilizedContext).fromBitmap(mBitmap);*/
 
                     m = map.addMarker(new MarkerOptions().position(currentInfo.getPosition()).icon(ic));
-                    markers.remove(entry.getKey());
-                    markers.put(m.getId(), new Pair<Boolean, Integer>(true, currentInfoIndex));
+                    //markers.remove(entry.getKey());
+                    //markers.put(m.getId(), new Pair<Boolean, Integer>(true, currentInfoIndex));
+                    addToList.add(new Pair<>(m.getId(), currentInfoIndex));
+                    removeFromList.add(entry.getKey());
                 }
 
                 else if((!InformationHandler.getInfoByIndex(entry.getValue().second).getType().equals(type)) &&
@@ -173,6 +181,15 @@ public class MarkersOnMap{
                     markers.put(m.getId(), new Pair<Boolean, Integer>(true, currentInfoIndex));*/
                 }
             }
+        }
+
+        int i;
+        for(i = 0; i < removeFromList.size(); i++) {
+            markers.remove(removeFromList.get(i));
+        }
+
+        for(i = 0; i < addToList.size(); i++) {
+            markers.put(addToList.get(i).first, new Pair<>(true, addToList.get(i).second));
         }
     }
 

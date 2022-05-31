@@ -1,15 +1,9 @@
-package com.example.data1;
+package com.example.data1.Data;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 
-import com.mapbox.mapboxsdk.annotations.Icon;
-import com.mapbox.mapboxsdk.annotations.IconFactory;
-import com.mapbox.mapboxsdk.annotations.Marker;
-import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.geometry.LatLng;
-import com.mapbox.mapboxsdk.maps.MapboxMap;
 
 import java.util.ArrayList;
 import java.util.List;

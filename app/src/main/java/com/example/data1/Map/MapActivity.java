@@ -1,11 +1,10 @@
-package com.example.data1;
+package com.example.data1.Map;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
@@ -18,9 +17,11 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.example.data1.Data.Information;
+import com.example.data1.Data.InformationHandler;
+import com.example.data1.List.ListActivity;
+import com.example.data1.R;
 import com.mapbox.mapboxsdk.Mapbox;
-import com.mapbox.mapboxsdk.annotations.Icon;
-import com.mapbox.mapboxsdk.annotations.IconFactory;
 import com.mapbox.mapboxsdk.annotations.Marker;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
@@ -36,7 +37,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private MapView mapView;
     private MapboxMap map;
     private MarkersOnMap markersOnMap;
-    private Marker currentSelectedIcon;
+    private Marker currentSelectedMarker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +48,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
 
-        currentSelectedIcon = null;
+        currentSelectedMarker = null;
 
         boolean addedSuccesfully = InformationHandler.initializeInformation(getBaseContext());
         if(!addedSuccesfully){
@@ -67,16 +68,18 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if(item.getItemId() == R.id.toListItem)
         {
-            //PASS THE MAPICON LISTf
+            //PASS THE MAPICON LIST
 
             Intent intent = new Intent(getApplicationContext(), ListActivity.class);
+            startActivity(intent);
+
             //intent.putExtra("markersOnMap", (Parcelable) markersOnMap);
            /* Bundle b = new Bundle();
             b.putSerializable("markersOnMap", markersOnMap);
             intent.putExtras(b);*/
             //intent.putExtra("markersOnMap", markersOnMap);
             //Map<Long, MapIcon> icons = markersOnMap.getIcons();
-            startActivity(intent);
+
             //overridePendingTransition(R.anim.right_slide_in, R.anim.left_slide_in);
         }
         return true;
@@ -98,7 +101,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         map.setOnInfoWindowClickListener(new MapboxMap.OnInfoWindowClickListener() {
             @Override
             public boolean onInfoWindowClick(@NonNull Marker marker) {
-                currentSelectedIcon = null;
+                currentSelectedMarker = null;
                 return false;
             }
         });
@@ -127,20 +130,20 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     iconLocation.setLatitude(ic.getPosition().getLatitude());
                     iconLocation.setLongitude(ic.getPosition().getLongitude());
                     setCameraPosition(iconLocation);*/
-                    if(currentSelectedIcon != null)
+                    if(currentSelectedMarker != null)
                     {
-                        currentSelectedIcon.hideInfoWindow();
-                        if(currentSelectedIcon.getId() != marker.getId())
+                        currentSelectedMarker.hideInfoWindow();
+                        if(currentSelectedMarker.getId() != marker.getId())
                         {
                             marker.setTitle(markerInfo.getName());
                             marker.setSnippet(markerInfo.getDescription());
                             marker.showInfoWindow(map, mapView);
-                            currentSelectedIcon = marker;
+                            currentSelectedMarker = marker;
                         }
 
                         else
                         {
-                            currentSelectedIcon = null;
+                            currentSelectedMarker = null;
                         }
                     }
 
@@ -149,7 +152,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                         marker.setTitle(markerInfo.getName());
                         marker.setSnippet(markerInfo.getDescription());
                         marker.showInfoWindow(map, mapView);
-                        currentSelectedIcon = marker;
+                        currentSelectedMarker = marker;
                     }
                     /*marker.setTitle(ic.getName());
                     marker.setSnippet(ic.getDescription());
@@ -170,9 +173,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         map.addOnCameraIdleListener(new MapboxMap.OnCameraIdleListener() {
             @Override
             public void onCameraIdle() {
-                if(currentSelectedIcon != null)
+                if(currentSelectedMarker != null)
                 {
-                    currentSelectedIcon.showInfoWindow(map, mapView);
+                    currentSelectedMarker.showInfoWindow(map, mapView);
                 }
             }
         });
@@ -181,7 +184,22 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedType = spinner.getSelectedItem().toString();
+                /*if(currentSelectedMarker != null) {
+                    if(selectedType != "All" && selectedType != InformationHandler.getInfoByIndex(markersOnMap.getMarkerIndexById(currentSelectedMarker.getId())).getType()) {
+                        currentSelectedMarker = null;
+                    }
+
+                }*/
                 markersOnMap.MarkersSelectionToMap(map, spinner.getSelectedItem().toString());
+
+                if(currentSelectedMarker != null) {
+                    if(selectedType != "All" && (!selectedType.equals(InformationHandler.getInfoByIndex(markersOnMap.getMarkerIndexById(currentSelectedMarker.getId())).getType()))) {
+                        currentSelectedMarker.hideInfoWindow();
+                        currentSelectedMarker = null;
+                    }
+
+                }
             }
 
             @Override

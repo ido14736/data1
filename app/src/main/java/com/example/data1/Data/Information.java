@@ -1,4 +1,4 @@
-package com.example.data1;
+package com.example.data1.Data;
 
 import com.mapbox.mapboxsdk.geometry.LatLng;
 
