@@ -59,7 +59,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         Spinner spinner = findViewById(R.id.typeSP);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_spinner_item, InformationHandler.getTypes());
+                android.R.layout.simple_spinner_item, InformationHandler.getServices_names());
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
     }
@@ -184,14 +184,14 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String selectedType = spinner.getSelectedItem().toString();
+                String selectedType = InformationHandler.getTypeByServiceName(spinner.getSelectedItem().toString());
                 /*if(currentSelectedMarker != null) {
                     if(selectedType != "All" && selectedType != InformationHandler.getInfoByIndex(markersOnMap.getMarkerIndexById(currentSelectedMarker.getId())).getType()) {
                         currentSelectedMarker = null;
                     }
 
                 }*/
-                markersOnMap.MarkersSelectionToMap(map, spinner.getSelectedItem().toString());
+                markersOnMap.MarkersSelectionToMap(map, selectedType);
 
                 if(currentSelectedMarker != null) {
                     if(selectedType != "All" && (!selectedType.equals(InformationHandler.getInfoByIndex(markersOnMap.getMarkerIndexById(currentSelectedMarker.getId())).getType()))) {

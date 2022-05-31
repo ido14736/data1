@@ -12,16 +12,23 @@ public class InformationHandler {
     private static List<Information> info;
     private static DatabaseHandler myDB;
     private static String[] types;
+    private static String[] services_names;
 
     //Adding the information from the DB to the list
     public static boolean initializeInformation(Context c) {
         info = new ArrayList();
         myDB = new DatabaseHandler(c);
 
-        types = new String[] {
-                "All", "amphitheater", "dorms", "building", "library", "microwave", "shuttle"
-                , "water", "refrigerator", "parking", "sports", "restaurant", "coffee"
+        services_names = new String[] {
+                "כל השירותים", "בנייני לימוד", "ספריות", "תחנות שאטל", "עמדות מים", "מקררים", "מיקרוגלים"
+                , "מעונות", "מתקני ספורט", "מרכזי הופעות ואירועים", "מגרשי חנייה", "מסעדות", "בתי קפה"
         };
+
+        types = new String[] {
+                "All", "building", "library", "shuttle", "water", "refrigerator", "microwave"
+                , "dorms", "sports", "amphitheater", "parking", "restaurant", "coffee"
+        };
+
 
         Cursor cursor = myDB.getAllMarkers();
         if (cursor == null) {
@@ -48,10 +55,19 @@ public class InformationHandler {
         return info.size();
     }
 
-    public static String[] getTypes() {
-        return types;
+    public static String[] getServices_names() {
+        return services_names;
     }
 
+    public static String getTypeByServiceName(String name) {
+        int i;
+        for(i = 0; i < services_names.length; i++){
+            if(services_names[i].equals(name)){
+                break;
+            }
+        }
+        return types[i];
+    }
 
     public static Information getInfoByIndex(int index) {
         return info.get(index);

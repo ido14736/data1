@@ -170,15 +170,15 @@ public class RowsInList {
     * TO-DO: as icon, pass the @drawable/correct icon */
     public void addListToService(){
         buildings = new ArrayList<Information>();
-        services.add(new Service("מבנים", buildings, 1));
+        services.add(new Service("בנייני לימוד", buildings, 1));
         libraries = new ArrayList<Information>();
         services.add(new Service("ספריות", libraries, 2));
         shuttles = new ArrayList<Information>();
-        services.add(new Service("שאטלים", shuttles, 3));
+        services.add(new Service("תחנות שאטל", shuttles, 3));
         gates = new ArrayList<Information>();
         services.add(new Service("שערים", gates, 4));
         water = new ArrayList<Information>();
-        services.add(new Service("מכונות מים", water, 5));
+        services.add(new Service("עמדות מים", water, 5));
         refrigerators = new ArrayList<Information>();
         services.add(new Service("מקררים", refrigerators, 6));
         microwaves = new ArrayList<Information>();
@@ -188,7 +188,7 @@ public class RowsInList {
         sports = new ArrayList<Information>();
         services.add(new Service("מתקני ספורט", sports, 9));
         amphitheaters = new ArrayList<Information>();
-        services.add(new Service("אמפי-תיאטרונים", amphitheaters, 10));
+        services.add(new Service("מרכזי הופעות ואירועים", amphitheaters, 10));
         parking_spots = new ArrayList<Information>();
         services.add(new Service("מגרשי חניה", parking_spots, 11));
         restaurants = new ArrayList<Information>();
