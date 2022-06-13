@@ -1,6 +1,7 @@
 package com.example.data1.Map;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -71,7 +72,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             //PASS THE MAPICON LIST
 
             Intent intent = new Intent(getApplicationContext(), ListActivity.class);
-            startActivity(intent);
+            startActivityForResult(intent, 1);
+
 
             //intent.putExtra("markersOnMap", (Parcelable) markersOnMap);
            /* Bundle b = new Bundle();
@@ -85,11 +87,99 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         return true;
     }
 
+    public long getMarkerIdByPosition(LatLng position) {
+        for (Marker marker : map.getMarkers()){
+            if(marker.getPosition().getLatitude() == position.getLatitude() &&
+                    marker.getPosition().getLongitude() == position.getLongitude()){
+                return marker.getId();
+            }
+        }
+
+        return -1;
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == 1){
+            if(resultCode == RESULT_OK){
+                //Toast.makeText(getBaseContext(), data.getStringExtra("editTextValue"),
+                //        Toast.LENGTH_LONG).show();
+                LatLng chosenItemPosition = new LatLng(data.getDoubleExtra("chosenItemLat", 0), data.getDoubleExtra("chosenItemLng", 0));
+                long id = getMarkerIdByPosition(chosenItemPosition);
+                Marker chosenItemMarker = markersOnMap.getMarkerById(id, map);
+
+                if(id != -1) {
+                    //Information i = InformationHandler.getInfoByIndex(markersOnMap.getMarkerIndexById(id));
+                    //Toast.makeText(getBaseContext(), i.getName(),
+                    //        Toast.LENGTH_LONG).show();
+                    handleMarkerClick(chosenItemMarker);
+                    map.animateCamera(CameraUpdateFactory.newLatLngZoom(chosenItemPosition, 16.0));
+                }
+
+                else {
+                    Toast.makeText(getBaseContext(), "The chosen marker isn't displayed.",
+                            Toast.LENGTH_LONG).show();
+                }
+                //System.out.println(chosenItemPosition.getLatitude());
+                //System.out.println(chosenItemPosition.getLongitude());
+            }
+        }
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.to_list_menu, menu);
         return true;
+    }
+
+    public boolean handleMarkerClick(Marker marker) {
+        Information markerInfo = InformationHandler.getInfoByIndex(markersOnMap.getMarkerIndexById(marker.getId()));
+        if(markerInfo != null)
+        {
+                    /*Location iconLocation = new Location("");
+                    iconLocation.setLatitude(ic.getPosition().getLatitude());
+                    iconLocation.setLongitude(ic.getPosition().getLongitude());
+                    setCameraPosition(iconLocation);*/
+            if(currentSelectedMarker != null)
+            {
+                currentSelectedMarker.hideInfoWindow();
+                if(currentSelectedMarker.getId() != marker.getId())
+                {
+                    marker.setTitle(markerInfo.getName());
+                    marker.setSnippet(markerInfo.getDescription());
+                    marker.showInfoWindow(map, mapView);
+                    currentSelectedMarker = marker;
+                }
+
+                else
+                {
+                    currentSelectedMarker = null;
+                }
+            }
+
+            else
+            {
+                marker.setTitle(markerInfo.getName());
+                marker.setSnippet(markerInfo.getDescription());
+                marker.showInfoWindow(map, mapView);
+                currentSelectedMarker = marker;
+            }
+                    /*marker.setTitle(ic.getName());
+                    marker.setSnippet(ic.getDescription());
+                    marker.showInfoWindow(map, mapView);*/
+
+            //then hide it
+
+                    /*Toast.makeText(getBaseContext(), ic.getDescription(),
+                            Toast.LENGTH_LONG).show();*/
+
+            return true;
+        }
+        return false;
     }
 
     //when the map is ready
@@ -123,49 +213,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         map.setOnMarkerClickListener(new MapboxMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(@NonNull Marker marker) {
-                Information markerInfo = InformationHandler.getInfoByIndex(markersOnMap.getMarkerIndexById(marker.getId()));
-                if(markerInfo != null)
-                {
-                    /*Location iconLocation = new Location("");
-                    iconLocation.setLatitude(ic.getPosition().getLatitude());
-                    iconLocation.setLongitude(ic.getPosition().getLongitude());
-                    setCameraPosition(iconLocation);*/
-                    if(currentSelectedMarker != null)
-                    {
-                        currentSelectedMarker.hideInfoWindow();
-                        if(currentSelectedMarker.getId() != marker.getId())
-                        {
-                            marker.setTitle(markerInfo.getName());
-                            marker.setSnippet(markerInfo.getDescription());
-                            marker.showInfoWindow(map, mapView);
-                            currentSelectedMarker = marker;
-                        }
-
-                        else
-                        {
-                            currentSelectedMarker = null;
-                        }
-                    }
-
-                    else
-                    {
-                        marker.setTitle(markerInfo.getName());
-                        marker.setSnippet(markerInfo.getDescription());
-                        marker.showInfoWindow(map, mapView);
-                        currentSelectedMarker = marker;
-                    }
-                    /*marker.setTitle(ic.getName());
-                    marker.setSnippet(ic.getDescription());
-                    marker.showInfoWindow(map, mapView);*/
-
-                    //then hide it
-
-                    /*Toast.makeText(getBaseContext(), ic.getDescription(),
-                            Toast.LENGTH_LONG).show();*/
-
-                    return true;
-                }
-                return false;
+                return handleMarkerClick(marker);
             }
         });
 

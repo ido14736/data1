@@ -17,6 +17,17 @@ public class Information {
         this.description = description;
     }
 
+    public boolean comapre(Information information) {
+        if (this.position.equals(information.getPosition()) &&
+                this.type.equals(information.getType()) &&
+                this.name.equals(information.getName()) &&
+                this.description.equals(information.getDescription())) {
+            return true;
+        }
+        return false;
+    }
+
+
     public LatLng getPosition() {
         return position;
     }

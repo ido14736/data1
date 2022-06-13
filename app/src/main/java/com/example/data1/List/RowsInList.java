@@ -108,6 +108,9 @@ public class RowsInList {
     }
 
 
+    public Information getSelectedItem() {
+        return adapter.getSelectedItem();
+    }
 
 
 

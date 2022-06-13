@@ -1,6 +1,9 @@
 package com.example.data1.List;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,11 +26,17 @@ public class MainAdapter extends BaseExpandableListAdapter {
     List<Service> originalList; // this just saves the original services and their info
 //  HashMap<String, List<Information>> services_lists;
 
+    Information currentSelectedItem;
+    View currentSelectedItemView;
+
     // constructor
     public MainAdapter(Context context, List<Service> originalList){
         this.context = context;
         (this.parentRowList = new ArrayList<>()).addAll(originalList);
         (this.originalList = new ArrayList<>()).addAll(originalList);
+
+        currentSelectedItem = null;
+        currentSelectedItemView = null;
     }
 
     /* returns the number of services of the menu */
@@ -105,10 +114,34 @@ public class MainAdapter extends BaseExpandableListAdapter {
 
         final View finalConvertView = convertView;
         textView.setOnClickListener(new View.OnClickListener() {
+            // show pop up with the description
             @Override
             public void onClick(View v) {
+                if(currentSelectedItem != null) {
+                    if(child.comapre(currentSelectedItem)) {
+                        currentSelectedItem = null;
+                        currentSelectedItemView = null;
+                        v.setBackgroundColor(Color.WHITE);
+                    }
+
+                    else {
+                        currentSelectedItemView.setBackgroundColor(Color.WHITE);
+                        currentSelectedItem = child;
+                        currentSelectedItemView = v;
+                        v.setBackgroundColor(0xFF00FF00);
+                    }
+                }
+
+                else {
+                    //android.graphics.drawable.Drawable d = v.getBackground();
+                    currentSelectedItem = child;
+                    currentSelectedItemView = v;
+                    v.setBackgroundColor(0xFF00FF00);
+                }
+
                //Toast.makeText(finalConvertView.getContext(), child.getDescription(),
                //        Toast.LENGTH_LONG).show();
+
 
             }
         });
@@ -117,6 +150,9 @@ public class MainAdapter extends BaseExpandableListAdapter {
 
     }
 
+    public Information getSelectedItem() {
+        return currentSelectedItem;
+    }
 
 
     @Override

@@ -6,6 +6,7 @@ import androidx.core.view.MenuItemCompat;
 
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.ContentInfo;
 import android.view.Menu;
@@ -19,6 +20,7 @@ import android.widget.SearchView;
 import android.widget.Toast;
 
 
+import com.example.data1.Data.Information;
 import com.example.data1.List.RowsInList;
 import com.example.data1.R;
 
@@ -30,6 +32,7 @@ public class ListActivity extends AppCompatActivity implements SearchView.OnQuer
     private SearchManager searchManager;
     private android.widget.SearchView searchView;
     private MenuItem searchItem;
+    private MenuItem showOnMapItem;
     RowsInList rows;
     ExpandableListView expendables;
     Button ShowOnMap;
@@ -46,6 +49,8 @@ public class ListActivity extends AppCompatActivity implements SearchView.OnQuer
          // set 'rows' into action
         rows.setOnServiceClickedListener(); // service
 
+        //showOnMapItem = findViewById(R.id.showOnMapItem);
+        //showOnMapItem.setEnabled(false);
 
         // Slide slide = new Slide(Gravity.LEFT);
         //this.getWindow().setEnterTransition(slide);
@@ -65,11 +70,41 @@ public class ListActivity extends AppCompatActivity implements SearchView.OnQuer
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if(item.getItemId() == R.id.toMapItem)
         {
-            //startActivity(new Intent(getApplicationContext(), MapActivity.class));
+            //Intent intent = new Intent();
+//
+            ////intent.putExtra("editTextValue", rows.getSelectedItem().getName());
+            //intent.putExtra("chosenItemLat", rows.getSelectedItem().getPosition().getLatitude());
+            //intent.putExtra("chosenItemLng", rows.getSelectedItem().getPosition().getLongitude());
+            //setResult(RESULT_OK, intent);
+            //finish();
+
+
             finish();
+
+            //startActivity(new Intent(getApplicationContext(), MapActivity.class));
             //overridePendingTransition(R.anim.left_slide_in, R.anim.right_slide_out);
             //overridePendingTransition(R.anim.right_slide, R.anim.left_slide);
         }
+
+        else if(item.getItemId() == R.id.showOnMapItem) {
+            Information selectedItem = rows.getSelectedItem();
+
+            if(selectedItem != null) {
+                Intent intent = new Intent();
+
+                //intent.putExtra("editTextValue", rows.getSelectedItem().getName());
+                intent.putExtra("chosenItemLat", rows.getSelectedItem().getPosition().getLatitude());
+                intent.putExtra("chosenItemLng", rows.getSelectedItem().getPosition().getLongitude());
+                setResult(RESULT_OK, intent);
+                finish();
+            }
+            else {
+                Toast.makeText(getBaseContext(), "Please select an item.",
+                        Toast.LENGTH_LONG).show();
+            }
+
+        }
+
         return super.onOptionsItemSelected(item);
 
     }
